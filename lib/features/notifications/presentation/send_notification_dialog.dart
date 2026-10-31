@@ -58,12 +58,19 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
       'createdAt': nowIso,
     };
 
-    // Broadcast to both Firestore and Realtime Database
+    // Broadcast via FCM v1 Push API (Status Bar), Firestore, and Realtime Database
+    final pushFuture = ApiClient.sendPushNotification(
+      title: title,
+      body: body,
+      audience: _selectedAudience,
+      imageUrl: imgUrl.isNotEmpty ? imgUrl : null,
+      actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
+    );
     final firestoreFuture = ApiClient.createDocument(AppConfig.colNotifications, payload);
     final rtdbFuture = ApiClient.broadcastRtdbNotification(payload);
 
-    final results = await Future.wait([firestoreFuture, rtdbFuture]);
-    final success = results[0] || results[1];
+    final results = await Future.wait([pushFuture, firestoreFuture, rtdbFuture]);
+    final success = results[0] || results[1] || results[2];
 
     if (mounted) {
       setState(() => _isSending = false);

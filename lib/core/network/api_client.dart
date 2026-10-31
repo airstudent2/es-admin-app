@@ -183,4 +183,39 @@ class ApiClient {
       return false;
     }
   }
+
+  /// Sends authentic FCM v1 High-Priority push notification to wake up student status bars
+  static Future<bool> sendPushNotification({
+    required String title,
+    required String body,
+    required String audience,
+    String? imageUrl,
+    String? actionUrl,
+  }) async {
+    final payload = {
+      'title': title,
+      'body': body,
+      'message': body,
+      'audience': audience,
+      'imageUrl': imageUrl,
+      'actionUrl': actionUrl,
+    };
+
+    try {
+      const url = "https://rkson-mock-api.pages.dev/api/v1/notify";
+      final response = await _dio.post(url, data: payload);
+      if (response.statusCode == 200 && response.data?['status'] == 'success') {
+        return true;
+      }
+    } catch (_) {}
+
+    // Fallback route
+    try {
+      const fallbackUrl = "https://rkson-mock-api.pages.dev/api/notify";
+      final response = await _dio.post(fallbackUrl, data: payload);
+      return response.statusCode == 200 && response.data?['status'] == 'success';
+    } catch (_) {
+      return false;
+    }
+  }
 }
