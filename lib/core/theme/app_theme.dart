@@ -10,15 +10,17 @@ class AppColors {
   static const Color background = Color(0xFFF8FAFC); // Slate 50
   static const Color surface = Colors.white;
   static const Color border = Color(0xFFE2E8F0); // Slate 200
+  static const Color borderLight = Color(0xFFF1F5F9); // Slate 100
 
   static const Color textPrimary = Color(0xFF0F172A); // Slate 900
-  static const Color textSecondary = Color(0xFF64748B); // Slate 500
+  static const Color textSecondary = Color(0xFF475569); // Slate 600
   static const Color textMuted = Color(0xFF94A3B8); // Slate 400
 
   static const Color success = Color(0xFF10B981); // Emerald 500
   static const Color successLight = Color(0xFFECFDF5); // Emerald 50
   static const Color warning = Color(0xFFF59E0B); // Amber 500
   static const Color warningLight = Color(0xFFFFFBEB); // Amber 50
+  static const Color warningDark = Color(0xFFB45309); // Amber 700
   static const Color danger = Color(0xFFEF4444); // Rose 500
   static const Color dangerLight = Color(0xFFFEF2F2); // Rose 50
 }
@@ -50,12 +52,14 @@ class AppTheme {
           color: AppColors.textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.bold,
+          letterSpacing: -0.2,
         ),
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
       cardTheme: CardTheme(
         color: AppColors.surface,
         elevation: 0,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: AppColors.border, width: 1),

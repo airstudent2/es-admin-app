@@ -41,17 +41,34 @@ class AdminHomeScreen extends StatefulWidget {
   State<AdminHomeScreen> createState() => _AdminHomeScreenState();
 }
 
-class _AdminHomeScreenState extends State<AdminHomeScreen> {
+class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   bool _isRefreshing = false;
+  late AnimationController _rotateController;
 
   final GlobalKey<NewsScreenState> _newsKey = GlobalKey();
   final GlobalKey<VipStudentsScreenState> _vipKey = GlobalKey();
   final GlobalKey<LibraryScreenState> _libraryKey = GlobalKey();
   final GlobalKey<NotificationsScreenState> _notificationsKey = GlobalKey();
 
+  @override
+  void initState() {
+    super.initState();
+    _rotateController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+  }
+
+  @override
+  void dispose() {
+    _rotateController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleGlobalRefresh() async {
     setState(() => _isRefreshing = true);
+    _rotateController.repeat();
     try {
       if (_currentIndex == 0) {
         await _newsKey.currentState?.loadNews();
@@ -63,79 +80,142 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         await _notificationsKey.currentState?.loadNotifications();
       }
     } finally {
-      if (mounted) setState(() => _isRefreshing = false);
+      if (mounted) {
+        _rotateController.stop();
+        _rotateController.reset();
+        setState(() => _isRefreshing = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primaryDark, AppColors.primary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 6, offset: const Offset(0, 2)),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(64),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  // App Icon with subtle gradient & shadow
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF312E81), Color(0xFF4338CA)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.25),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.school_rounded, color: Colors.white, size: 21),
+                  ),
+                  const SizedBox(width: 12),
+
+                  // Brand Text
+                  const Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Es Bangla Admin',
+                          style: TextStyle(
+                            fontSize: 16.5,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                            letterSpacing: -0.3,
+                            height: 1.15,
+                          ),
+                        ),
+                        Text(
+                          'অফিশিয়াল কন্ট্রোল প্যানেল • v1.0.1',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Cloud Synced Status Pill
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.successLight,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.success.withOpacity(0.35)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.success,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        const Text(
+                          'ক্লাউড সিঙ্কড',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF047857),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Refresh Button with smooth rotation
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _isRefreshing ? null : _handleGlobalRefresh,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: RotationTransition(
+                          turns: _rotateController,
+                          child: const Icon(
+                            Icons.refresh_rounded,
+                            size: 19,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              child: const Icon(Icons.school, color: Colors.white, size: 20),
             ),
-            const SizedBox(width: 10),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Es Bangla Admin',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary, height: 1.2),
-                ),
-                Text(
-                  'অফিশিয়াল কন্ট্রোল প্যানেল',
-                  style: TextStyle(fontSize: 10.5, color: AppColors.textSecondary, fontWeight: FontWeight.normal),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
-        actions: [
-          // Cloud Synced Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.successLight,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.success.withOpacity(0.3)),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(radius: 3, backgroundColor: AppColors.success),
-                SizedBox(width: 4),
-                Text('ক্লাউড সিঙ্কড', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.success)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          // Refresh Button
-          IconButton(
-            onPressed: _isRefreshing ? null : _handleGlobalRefresh,
-            icon: _isRefreshing
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
-                : const Icon(Icons.refresh, size: 22, color: AppColors.textSecondary),
-            tooltip: 'রিফ্রেশ',
-          ),
-          const SizedBox(width: 6),
-        ],
       ),
       body: IndexedStack(
         index: _currentIndex,
@@ -146,41 +226,103 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           NotificationsScreen(key: _notificationsKey),
         ],
       ),
+      // Custom Sleek Navigation Bar
       bottomNavigationBar: Container(
+        height: 64,
         decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(top: BorderSide(color: AppColors.border, width: 1)),
-        ),
-        child: NavigationBar(
-          selectedIndex: _currentIndex,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          indicatorColor: AppColors.primaryLight,
-          onDestinationSelected: (index) {
-            setState(() => _currentIndex = index);
-          },
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.newspaper_outlined),
-              selectedIcon: Icon(Icons.newspaper, color: AppColors.primary),
-              label: 'নিউজ স্লাইডার',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.workspace_premium_outlined),
-              selectedIcon: Icon(Icons.workspace_premium, color: AppColors.warning),
-              label: 'ভিআইপি ও ইউজার',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.video_library_outlined),
-              selectedIcon: Icon(Icons.video_library, color: AppColors.primary),
-              label: 'ভিডিও লাইব্রেরি',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.campaign_outlined),
-              selectedIcon: Icon(Icons.campaign, color: AppColors.primary),
-              label: 'নোটিফিকেশন',
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x06000000),
+              blurRadius: 10,
+              offset: Offset(0, -3),
             ),
           ],
+        ),
+        child: Row(
+          children: [
+            _buildNavItem(
+              index: 0,
+              icon: Icons.newspaper_outlined,
+              activeIcon: Icons.newspaper_rounded,
+              label: 'নিউজ ব্যানার',
+              activeColor: AppColors.primary,
+            ),
+            _buildNavItem(
+              index: 1,
+              icon: Icons.workspace_premium_outlined,
+              activeIcon: Icons.workspace_premium_rounded,
+              label: 'ভিআইপি ও ইউজার',
+              activeColor: AppColors.warning,
+            ),
+            _buildNavItem(
+              index: 2,
+              icon: Icons.video_library_outlined,
+              activeIcon: Icons.video_library_rounded,
+              label: 'ভিডিও লাইব্রেরি',
+              activeColor: AppColors.primary,
+            ),
+            _buildNavItem(
+              index: 3,
+              icon: Icons.campaign_outlined,
+              activeIcon: Icons.campaign_rounded,
+              label: 'নোটিফিকেশন',
+              activeColor: AppColors.primary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required int index,
+    required IconData icon,
+    required IconData activeIcon,
+    required String label,
+    required Color activeColor,
+  }) {
+    final isSelected = _currentIndex == index;
+
+    return Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => setState(() => _currentIndex = index),
+          splashColor: activeColor.withOpacity(0.08),
+          highlightColor: Colors.transparent,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSelected ? 16 : 0,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? activeColor.withOpacity(0.12) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  isSelected ? activeIcon : icon,
+                  size: 21,
+                  color: isSelected ? activeColor : AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                  color: isSelected ? activeColor : AppColors.textSecondary,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

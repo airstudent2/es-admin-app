@@ -56,8 +56,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: "Es Bangla Admin v1.0.0 (Pure Native Android Control Panel)"
+          tag_name: v1.0.1
+          name: "Es Bangla Admin v1.0.1 (Polished UI & Sleek Navigation)"
           draft: false
           prerelease: false
           body: |

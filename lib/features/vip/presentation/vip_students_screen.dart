@@ -80,10 +80,14 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('ভিআইপি সাবস্ক্রিপশন বাতিল করবেন?'),
-        content: Text('$name-এর সমস্ত ভিআইপি ও প্রিমিয়াম অ্যাক্সেস বাতিল হয়ে সাধারণ ফ্রি অ্যাকাউন্টে রূপান্তর হবে।'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('ভিআইপি সাবস্ক্রিপশন বাতিল করবেন?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        content: Text('$name-এর সমস্ত ভিআইপি ও প্রিমিয়াম অ্যাক্সেস মুছে দিয়ে ফ্রি অ্যাকাউন্টে রূপান্তর করা হবে।'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('না')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('না, রাখুন', style: TextStyle(color: AppColors.textSecondary)),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(ctx, true),
@@ -148,9 +152,10 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
       backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openGrantDialog(),
-        backgroundColor: AppColors.warning,
-        icon: const Icon(Icons.workspace_premium, color: Colors.white),
-        label: const Text('সরাসরি ভিআইপি দিন', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: const Color(0xFFD97706),
+        elevation: 3,
+        icon: const Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 20),
+        label: const Text('ভিআইপি দিন', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5)),
       ),
       body: RefreshIndicator(
         onRefresh: loadUsers,
@@ -163,11 +168,26 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
               color: Colors.white,
               child: Row(
                 children: [
-                  _buildMetricTile('মোট শিক্ষার্থী', _allUsers.length, AppColors.primary),
+                  _buildMetricTile(
+                    title: 'মোট শিক্ষার্থী',
+                    count: _allUsers.length,
+                    icon: Icons.people_alt_rounded,
+                    color: AppColors.primary,
+                  ),
                   const SizedBox(width: 8),
-                  _buildMetricTile('ভিআইপি ইউজার', vipUsers.length, AppColors.warning),
+                  _buildMetricTile(
+                    title: 'ভিআইপি ইউজার',
+                    count: vipUsers.length,
+                    icon: Icons.workspace_premium_rounded,
+                    color: const Color(0xFFD97706),
+                  ),
                   const SizedBox(width: 8),
-                  _buildMetricTile('ফ্রি ইউজার', freeUsers.length, AppColors.textSecondary),
+                  _buildMetricTile(
+                    title: 'ফ্রি ইউজার',
+                    count: freeUsers.length,
+                    icon: Icons.person_outline_rounded,
+                    color: AppColors.textSecondary,
+                  ),
                 ],
               ),
             ),
@@ -182,11 +202,11 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                   TextField(
                     onChanged: (val) => setState(() => _searchQuery = val.trim()),
                     decoration: InputDecoration(
-                      hintText: 'নাম, ইমেইল বা UID দিয়ে খুঁজুন...',
-                      prefixIcon: const Icon(Icons.search, size: 20),
+                      hintText: 'শিক্ষার্থীর নাম, ইমেইল বা UID লিখে খুঁজুন...',
+                      prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.textSecondary),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, size: 18),
+                              icon: const Icon(Icons.cancel_rounded, size: 18, color: AppColors.textMuted),
                               onPressed: () => setState(() => _searchQuery = ''),
                             )
                           : null,
@@ -194,12 +214,12 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       _buildFilterChip('সমস্ত (${_allUsers.length})', 'all'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('ভিআইপি (${vipUsers.length})', 'vip'),
+                      _buildFilterChip('👑 ভিআইপি (${vipUsers.length})', 'vip'),
                       const SizedBox(width: 8),
                       _buildFilterChip('ফ্রি (${freeUsers.length})', 'free'),
                     ],
@@ -207,6 +227,7 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                 ],
               ),
             ),
+            const Divider(height: 1, color: AppColors.border),
 
             // Students List
             Expanded(
@@ -219,14 +240,16 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.people_outline, size: 64, color: AppColors.textMuted),
+                                const Icon(Icons.search_off_rounded, size: 56, color: AppColors.textMuted),
                                 const SizedBox(height: 12),
-                                const Text('কোনো শিক্ষার্থী পাওয়া যায়নি', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
-                                const SizedBox(height: 12),
+                                const Text('কোনো শিক্ষার্থী মেলেনি', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                                const SizedBox(height: 4),
+                                const Text('সার্চ কিওয়ার্ড পরিবর্তন করুন অথবা সরাসরি নতুন ভিআইপি যুক্ত করুন।', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                                const SizedBox(height: 14),
                                 ElevatedButton.icon(
                                   onPressed: () => _openGrantDialog(),
-                                  icon: const Icon(Icons.workspace_premium),
-                                  label: const Text('নতুন ভিআইপি যুক্ত করুন'),
+                                  icon: const Icon(Icons.workspace_premium_rounded, size: 18),
+                                  label: const Text('সরাসরি ভিআইপি যুক্ত করুন'),
                                 ),
                               ],
                             ),
@@ -240,7 +263,7 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                             final user = displayList[index];
                             final isVip = _isUserVip(user);
                             final name = user['name'] ?? 'শিক্ষার্থী';
-                            final email = user['email'] ?? 'ইমেইল নেই';
+                            final email = user['email'] ?? 'ইমেইল দেওয়া নেই';
                             final uid = user['id'] ?? '';
                             final daysLeft = _getRemainingDays(user['vip_expires_at']);
                             final expiryDateStr = _formatDate(user['vip_expires_at']);
@@ -255,20 +278,21 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        // Avatar
+                                        // Initials Avatar
                                         CircleAvatar(
                                           radius: 20,
-                                          backgroundColor: isVip ? AppColors.warningLight : AppColors.primaryLight,
+                                          backgroundColor: isVip ? const Color(0xFFFEF3C7) : AppColors.primaryLight,
                                           child: Text(
                                             name.isNotEmpty ? name[0].toUpperCase() : 'S',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              color: isVip ? AppColors.warning : AppColors.primary,
+                                              fontSize: 15,
+                                              color: isVip ? const Color(0xFFB45309) : AppColors.primary,
                                             ),
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        // Name & Email
+                                        // Student Info
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,7 +303,7 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                                                   Flexible(
                                                     child: Text(
                                                       name,
-                                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: AppColors.textPrimary),
                                                       maxLines: 1,
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
@@ -287,17 +311,26 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                                                   Container(
                                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                                     decoration: BoxDecoration(
-                                                      color: isVip ? AppColors.warningLight : const Color(0xFFF1F5F9),
+                                                      color: isVip ? const Color(0xFFFEF3C7) : const Color(0xFFF1F5F9),
                                                       borderRadius: BorderRadius.circular(6),
-                                                      border: Border.all(color: isVip ? AppColors.warning : AppColors.border),
+                                                      border: Border.all(color: isVip ? const Color(0xFFFDE68A) : AppColors.border),
                                                     ),
-                                                    child: Text(
-                                                      isVip ? '👑 VIP' : 'FREE',
-                                                      style: TextStyle(
-                                                        fontSize: 11,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: isVip ? const Color(0xFFB45309) : AppColors.textSecondary,
-                                                      ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        if (isVip) ...[
+                                                          const Icon(Icons.stars_rounded, size: 12, color: Color(0xFFD97706)),
+                                                          const SizedBox(width: 3),
+                                                        ],
+                                                        Text(
+                                                          isVip ? 'VIP সদস্য' : 'ফ্রি ইউজার',
+                                                          style: TextStyle(
+                                                            fontSize: 10.5,
+                                                            fontWeight: FontWeight.bold,
+                                                            color: isVip ? const Color(0xFF92400E) : AppColors.textSecondary,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ],
@@ -311,14 +344,15 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                                     ),
                                     const SizedBox(height: 10),
 
-                                    // UID Copy Bar
+                                    // UID Copy Capsule
                                     InkWell(
                                       onTap: () {
                                         Clipboard.setData(ClipboardData(text: uid));
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('UID ক্লিপবোর্ডে কপি হয়েছে!'), duration: Duration(seconds: 1)),
+                                          const SnackBar(content: Text('UID ক্লিপবোর্ডে কপি হয়েছে!'), duration: Duration(milliseconds: 900)),
                                         );
                                       },
+                                      borderRadius: BorderRadius.circular(6),
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
@@ -329,17 +363,20 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.key, size: 12, color: AppColors.textMuted),
+                                            const Icon(Icons.fingerprint_rounded, size: 13, color: AppColors.textMuted),
                                             const SizedBox(width: 4),
-                                            Text('UID: ${uid.length > 20 ? "${uid.substring(0, 18)}..." : uid}', style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: AppColors.textSecondary)),
+                                            Text(
+                                              'UID: ${uid.length > 22 ? "${uid.substring(0, 20)}..." : uid}',
+                                              style: const TextStyle(fontSize: 11, fontFamily: 'monospace', color: AppColors.textSecondary),
+                                            ),
                                             const SizedBox(width: 6),
-                                            const Icon(Icons.copy, size: 11, color: AppColors.primary),
+                                            const Icon(Icons.copy_rounded, size: 12, color: AppColors.primary),
                                           ],
                                         ),
                                       ),
                                     ),
 
-                                    // Entitlements and Expiry if VIP
+                                    // Active Entitlements & Remaining Time
                                     if (isVip) ...[
                                       const SizedBox(height: 10),
                                       Wrap(
@@ -358,18 +395,31 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                                           );
                                         }).toList(),
                                       ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.schedule, size: 13, color: AppColors.warning),
-                                          const SizedBox(width: 4),
-                                          Text('বাকি: $daysLeft দিন • মেয়াদ শেষ: $expiryDateStr', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFFB45309))),
-                                        ],
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFFBEB),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: const Color(0xFFFDE68A)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.timer_outlined, size: 14, color: Color(0xFFD97706)),
+                                            const SizedBox(width: 6),
+                                            Expanded(
+                                              child: Text(
+                                                'বাকি: $daysLeft দিন • মেয়াদ শেষ হবে: $expiryDateStr',
+                                                style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
 
                                     const SizedBox(height: 12),
-                                    // Actions Bar
+                                    // Action Buttons
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -378,23 +428,28 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                                             onPressed: () => _revokeVip(user),
                                             style: OutlinedButton.styleFrom(
                                               foregroundColor: AppColors.danger,
-                                              side: const BorderSide(color: AppColors.danger),
+                                              side: const BorderSide(color: Color(0xFFFCA5A5)),
                                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                               visualDensity: VisualDensity.compact,
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                             ),
-                                            icon: const Icon(Icons.cancel_outlined, size: 14),
-                                            label: const Text('ভিআইপি বাতিল', style: TextStyle(fontSize: 12)),
+                                            icon: const Icon(Icons.block_rounded, size: 13),
+                                            label: const Text('ভিআইপি বাতিল', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
                                           ),
                                         const SizedBox(width: 8),
                                         ElevatedButton.icon(
                                           onPressed: () => _openGrantDialog(user),
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: isVip ? AppColors.primary : AppColors.warning,
+                                            backgroundColor: isVip ? AppColors.primary : const Color(0xFFD97706),
                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                             visualDensity: VisualDensity.compact,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                           ),
-                                          icon: Icon(isVip ? Icons.update : Icons.add_moderator, size: 14),
-                                          label: Text(isVip ? 'মেয়াদ বাড়ান' : 'ভিআইপি দিন', style: const TextStyle(fontSize: 12)),
+                                          icon: Icon(isVip ? Icons.update_rounded : Icons.workspace_premium_rounded, size: 14),
+                                          label: Text(
+                                            isVip ? 'মেয়াদ বাড়ান' : 'ভিআইপি দিন',
+                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -411,21 +466,42 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
     );
   }
 
-  Widget _buildMetricTile(String title, int count, Color color) {
+  Widget _buildMetricTile({
+    required String title,
+    required int count,
+    required IconData icon,
+    required Color color,
+  }) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(10),
+          color: color.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 2),
-            Text('$count', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+            Row(
+              children: [
+                Icon(icon, size: 13, color: color),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(fontSize: 10.5, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 3),
+            Text(
+              '$count',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: color, height: 1.1),
+            ),
           ],
         ),
       ),
@@ -435,11 +511,22 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
   Widget _buildFilterChip(String label, String value) {
     final isSelected = _selectedFilter == value;
     return ChoiceChip(
-      label: Text(label, style: TextStyle(fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? Colors.white : AppColors.textPrimary)),
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11.5,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          color: isSelected ? Colors.white : AppColors.textPrimary,
+        ),
+      ),
       selected: isSelected,
       selectedColor: AppColors.primary,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: isSelected ? AppColors.primary : AppColors.border)),
+      backgroundColor: const Color(0xFFF8FAFC),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: isSelected ? AppColors.primary : AppColors.border),
+      ),
       onSelected: (sel) {
         if (sel) setState(() => _selectedFilter = value);
       },

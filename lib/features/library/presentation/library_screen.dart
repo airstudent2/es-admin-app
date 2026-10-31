@@ -62,7 +62,7 @@ class LibraryScreenState extends State<LibraryScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(!currentLocked ? '$subName বিষয় সফলভাবে লকড (PRO) করা হয়েছে' : '$subName বিষয় সবার জন্য উন্মুক্ত করা হয়েছে'),
-            backgroundColor: !currentLocked ? AppColors.warning : AppColors.success,
+            backgroundColor: !currentLocked ? const Color(0xFFD97706) : AppColors.success,
           ),
         );
       }
@@ -75,6 +75,15 @@ class LibraryScreenState extends State<LibraryScreen> {
     });
     if (success) {
       loadData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(!currentFree ? 'ক্লাসটি ফ্রি করা হয়েছে' : 'ক্লাসটি ভিআইপি লক করা হয়েছে'),
+            backgroundColor: !currentFree ? AppColors.success : const Color(0xFFD97706),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
     }
   }
 
@@ -82,10 +91,14 @@ class LibraryScreenState extends State<LibraryScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('ভিডিও ক্লাস মুছে ফেলবেন?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('ভিডিও ক্লাস মুছে ফেলবেন?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         content: const Text('আপনি কি নিশ্চিত যে এই ক্লাসটি সম্পূর্ণ মুছে ফেলতে চান?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('না')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('না, রাখুন', style: TextStyle(color: AppColors.textSecondary)),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () => Navigator.pop(ctx, true),
@@ -139,8 +152,9 @@ class LibraryScreenState extends State<LibraryScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openAddEditModal(),
         backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.video_call, color: Colors.white),
-        label: const Text('নতুন ক্লাস যুক্ত করুন', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        elevation: 3,
+        icon: const Icon(Icons.video_call_rounded, color: Colors.white, size: 20),
+        label: const Text('নতুন ক্লাস', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5)),
       ),
       body: RefreshIndicator(
         onRefresh: loadData,
@@ -156,8 +170,8 @@ class LibraryScreenState extends State<LibraryScreen> {
                   Expanded(
                     child: SegmentedButton<int>(
                       segments: const [
-                        ButtonSegment(value: 3, label: Text('সেমিস্টার ৩', style: TextStyle(fontWeight: FontWeight.bold))),
-                        ButtonSegment(value: 4, label: Text('সেমিস্টার ৪', style: TextStyle(fontWeight: FontWeight.bold))),
+                        ButtonSegment(value: 3, label: Text('সেমিস্টার ৩', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
+                        ButtonSegment(value: 4, label: Text('সেমিস্টার ৪', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
                       ],
                       selected: {_activeSemester},
                       onSelectionChanged: (set) => setState(() => _activeSemester = set.first),
@@ -172,7 +186,7 @@ class LibraryScreenState extends State<LibraryScreen> {
             ),
             const Divider(height: 1, color: AppColors.border),
 
-            // Subject Tabs & Global Lock Switch Card
+            // Subject Selector & Global Lock Switch Card
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               color: Colors.white,
@@ -181,14 +195,14 @@ class LibraryScreenState extends State<LibraryScreen> {
                   // Subject Selector Tabs
                   Row(
                     children: [
-                      _buildSubjectTab('বাংলা', 'bengali', Icons.menu_book),
+                      _buildSubjectTab('বাংলা (Bengali)', 'bengali', Icons.menu_book_rounded),
                       const SizedBox(width: 10),
-                      _buildSubjectTab('English', 'english', Icons.language),
+                      _buildSubjectTab('English', 'english', Icons.language_rounded),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
 
-                  // Global Subject Lock Card
+                  // Global Lock Status Card
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
@@ -201,12 +215,19 @@ class LibraryScreenState extends State<LibraryScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              isCurSubLocked ? Icons.lock : Icons.lock_open,
-                              color: isCurSubLocked ? AppColors.danger : AppColors.success,
-                              size: 20,
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: isCurSubLocked ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isCurSubLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                                color: isCurSubLocked ? AppColors.danger : AppColors.success,
+                                size: 18,
+                              ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -215,11 +236,11 @@ class LibraryScreenState extends State<LibraryScreen> {
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary),
                                 ),
                                 Text(
-                                  isCurSubLocked ? '🔒 লকড (শুধুমাত্র VIP শিক্ষার্থীরা দেখতে পারবে)' : '🔓 উন্মুক্ত (সকল শিক্ষার্থীর জন্য ফ্রি)',
+                                  isCurSubLocked ? 'লকড (শুধুমাত্র VIP শিক্ষার্থীরা ক্লাস দেখতে পারবে)' : 'উন্মুক্ত (সকল শিক্ষার্থীর জন্য ফ্রি ক্লাস)',
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
-                                    color: isCurSubLocked ? AppColors.danger : AppColors.success,
+                                    color: isCurSubLocked ? AppColors.danger : const Color(0xFF15803D),
                                   ),
                                 ),
                               ],
@@ -251,11 +272,11 @@ class LibraryScreenState extends State<LibraryScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.hourglass_top, size: 56, color: AppColors.warning),
+                                const Icon(Icons.hourglass_top_rounded, size: 52, color: Color(0xFFD97706)),
                                 const SizedBox(height: 12),
-                                const Text('সেমিস্টার ৪ প্রস্তুতিমূলক', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                                const SizedBox(height: 6),
-                                const Text('ইউজার অ্যাপে সেমিস্টার ৪ এখনও কামিং সুন রয়েছে। সেমিস্টার ৩ এর ভিডিও ক্লাস সক্রিয় রয়েছে।', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                const Text('সেমিস্টার ৪ প্রস্তুতিমূলক', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                                const SizedBox(height: 4),
+                                const Text('ইউজার অ্যাপে সেমিস্টার ৪ এখনও কামিং সুন রয়েছে। সেমিস্টার ৩ এর ভিডিও ক্লাস সক্রিয় রয়েছে।', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
                               ],
                             ),
                           ),
@@ -267,13 +288,13 @@ class LibraryScreenState extends State<LibraryScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.video_library_outlined, size: 56, color: AppColors.textMuted),
+                                    const Icon(Icons.video_library_outlined, size: 52, color: AppColors.textMuted),
                                     const SizedBox(height: 12),
-                                    Text('সেমিস্টার ৩ ${_activeSubjectId == 'bengali' ? "বাংলা" : "English"} বিষয়ে কোনো ক্লাস যুক্ত নেই', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                                    Text('সেমিস্টার ৩ ${_activeSubjectId == 'bengali' ? "বাংলা" : "English"} বিষয়ে কোনো ক্লাস নেই', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
                                     const SizedBox(height: 14),
                                     ElevatedButton.icon(
                                       onPressed: () => _openAddEditModal(),
-                                      icon: const Icon(Icons.add),
+                                      icon: const Icon(Icons.add, size: 18),
                                       label: const Text('প্রথম ক্লাস যুক্ত করুন'),
                                     ),
                                   ],
@@ -288,7 +309,7 @@ class LibraryScreenState extends State<LibraryScreen> {
                                 final v = filteredVideos[index];
                                 final isFree = v['isFree'] == true;
                                 final thumb = v['thumbnailUrl'] ?? '';
-                                final topic = v['topicName'] ?? v['topic'] ?? '';
+                                final topic = (v['topicName'] ?? v['topic'] ?? '').toString();
 
                                 return Card(
                                   clipBehavior: Clip.antiAlias,
@@ -304,8 +325,8 @@ class LibraryScreenState extends State<LibraryScreen> {
                                               fit: BoxFit.cover,
                                               placeholder: (_, __) => Container(color: Colors.black12, child: const Center(child: CircularProgressIndicator(strokeWidth: 2))),
                                               errorWidget: (_, __, ___) => Container(
-                                                color: Colors.grey.shade300,
-                                                child: const Icon(Icons.play_circle_outline, size: 48, color: Colors.grey),
+                                                color: const Color(0xFFF1F5F9),
+                                                child: const Icon(Icons.play_circle_outline_rounded, size: 48, color: AppColors.textMuted),
                                               ),
                                             ),
                                           ),
@@ -314,17 +335,18 @@ class LibraryScreenState extends State<LibraryScreen> {
                                             right: 8,
                                             child: InkWell(
                                               onTap: () => _toggleVideoFree(v['id'], isFree),
+                                              borderRadius: BorderRadius.circular(6),
                                               child: Container(
                                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                                 decoration: BoxDecoration(
-                                                  color: isFree ? AppColors.success : AppColors.warning,
+                                                  color: isFree ? const Color(0xFF10B981) : const Color(0xFFD97706),
                                                   borderRadius: BorderRadius.circular(6),
                                                   boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
                                                 ),
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    Icon(isFree ? Icons.lock_open : Icons.lock, size: 12, color: Colors.white),
+                                                    Icon(isFree ? Icons.lock_open_rounded : Icons.lock_rounded, size: 12, color: Colors.white),
                                                     const SizedBox(width: 4),
                                                     Text(isFree ? 'FREE' : 'VIP ONLY', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
                                                   ],
@@ -339,7 +361,7 @@ class LibraryScreenState extends State<LibraryScreen> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(v['title'] ?? 'শিরোনামহীন', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                                            Text(v['title'] ?? 'শিরোনামহীন', style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
                                             if (topic.isNotEmpty) ...[
                                               const SizedBox(height: 3),
                                               Text('অধ্যায়: $topic', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
@@ -350,7 +372,7 @@ class LibraryScreenState extends State<LibraryScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                         decoration: const BoxDecoration(
-                                          color: Color(0xFFF1F5F9),
+                                          color: Color(0xFFF8FAFC),
                                           border: Border(top: BorderSide(color: AppColors.border)),
                                         ),
                                         child: Row(
@@ -361,13 +383,13 @@ class LibraryScreenState extends State<LibraryScreen> {
                                               children: [
                                                 TextButton.icon(
                                                   onPressed: () => _openAddEditModal(v),
-                                                  icon: const Icon(Icons.edit, size: 14, color: AppColors.primary),
-                                                  label: const Text('এডিট', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                                                  icon: const Icon(Icons.edit_rounded, size: 14, color: AppColors.primary),
+                                                  label: const Text('এডিট', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.primary)),
                                                 ),
                                                 TextButton.icon(
                                                   onPressed: () => _deleteVideo(v['id']),
-                                                  icon: const Icon(Icons.delete, size: 14, color: AppColors.danger),
-                                                  label: const Text('মুছুন', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.danger)),
+                                                  icon: const Icon(Icons.delete_outline_rounded, size: 14, color: AppColors.danger),
+                                                  label: const Text('মুছুন', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.danger)),
                                                 ),
                                               ],
                                             ),
@@ -395,21 +417,21 @@ class LibraryScreenState extends State<LibraryScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : AppColors.background,
+            color: isSelected ? AppColors.primaryLight : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
+            border: Border.all(color: isSelected ? AppColors.primary : AppColors.border, width: isSelected ? 1.5 : 1),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: isSelected ? Colors.white : AppColors.textSecondary),
+              Icon(icon, size: 16, color: isSelected ? AppColors.primary : AppColors.textSecondary),
               const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : AppColors.textSecondary,
+                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
                 ),
               ),
             ],
