@@ -1,0 +1,76 @@
+name: Build Es Bangla Admin APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Es Bangla Admin APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          cache: true
+
+      - name: Setup Permanent Release Keystore
+        run: |
+          if [ ! -f android/app/release.keystore ]; then
+            keytool -genkey -v -keystore android/app/release.keystore -alias esbangla -keyalg RSA -keysize 2048 -validity 10000 -storepass esbangla123 -keypass esbangla123 -dname "CN=EsBanglaAdmin, OU=Education, O=EsBangla, L=Kolkata, ST=WB, C=IN"
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add android/app/release.keystore
+            git commit -m "chore(signing): commit permanent release keystore [skip ci]" || true
+            git push origin main || true
+          fi
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build APK (Release)
+        run: flutter build apk --release --android-skip-build-dependency-validation
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: es-admin-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: "Es Bangla Admin v1.0.0 (Pure Native Android Control Panel)"
+          draft: false
+          prerelease: false
+          body: |
+            ### Es Bangla Admin v1.0.0 Release:
+            - **100% Pure Native Android Flutter Application**:
+              - Zero WebViews. 60fps Native Material 3 UI.
+            - **4 Core Modules**:
+              - 📰 News Slider Manager
+              - 👑 VIP Subscription & Student Entitlements
+              - 🎥 Video Library & Subject Locks (Bengali/English)
+              - 🔔 Push Notification Broadcast Engine
+            - **Live Firebase Integration**:
+              - Real-time cloud sync with zero demo data.
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

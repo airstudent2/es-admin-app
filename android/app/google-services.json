@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "624443477019",
+    "firebase_url": "https://es-bangla-225f2-default-rtdb.firebaseio.com",
+    "project_id": "es-bangla-225f2",
+    "storage_bucket": "es-bangla-225f2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624443477019:android:8324f7b355f17cfd3dfcbe",
+        "android_client_info": {
+          "package_name": "com.rkson.esbangla"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "624443477019-5ktnu5e7of3ru35hhinqiv8in8r3ldul.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rkson.esbangla",
+            "certificate_hash": "4033f87df19553c9d4c8dc6b79c429249aca7172"
+          }
+        },
+        {
+          "client_id": "624443477019-jg6lrosd2cm6hro4g2lcsh4a52umt046.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbq3ceTO1CCJIPKRjH3aqdGHHOkghALL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "624443477019-jg6lrosd2cm6hro4g2lcsh4a52umt046.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

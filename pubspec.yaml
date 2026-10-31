@@ -1,0 +1,27 @@
+name: es_admin_app
+description: "Es Bangla Admin - Official Native Android Control Panel"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  dio: ^5.4.3+1
+  intl: ^0.19.0
+  google_fonts: ^6.2.1
+  flutter_riverpod: ^2.5.1
+  cached_network_image: ^3.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

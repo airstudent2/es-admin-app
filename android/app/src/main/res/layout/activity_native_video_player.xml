@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <!-- Normal (Non-fullscreen) Layout Container -->
+    <LinearLayout
+        android:id="@+id/normalLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:orientation="vertical">
+
+        <!-- Prominent Video Player Container -->
+        <FrameLayout
+            android:id="@+id/playerContainer"
+            android:layout_width="match_parent"
+            android:layout_height="270dp"
+            android:background="#000000">
+
+            <WebView
+                android:id="@+id/videoWebView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ProgressBar
+                android:id="@+id/playerLoading"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="#3B82F6" />
+
+            <!-- Guard 1: Top-left covers channel avatar & title so tapping channel name does nothing.
+                 Width is 135dp so it leaves the Volume/Speaker button, CC, and Settings Gear completely free! -->
+            <View
+                android:id="@+id/overlayChannelGuard"
+                android:layout_width="135dp"
+                android:layout_height="48dp"
+                android:layout_gravity="top|start"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Guard 2: Absorbs touches on YouTube's copy link button area at bottom-left -->
+            <View
+                android:id="@+id/overlayCopyLinkGuard"
+                android:layout_width="65dp"
+                android:layout_height="48dp"
+                android:layout_gravity="bottom|start"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Bottom Controls Layout (Overlay at bottom of player) -->
+            <FrameLayout
+                android:id="@+id/bottomControlsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_gravity="bottom">
+
+                <!-- Bottom guard: absorbs touches in middle bar between back and YouTube's fullscreen button (blocks YouTube logo, More videos) -->
+                <View
+                    android:id="@+id/overlayBottomBarGuard"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="56dp"
+                    android:layout_marginEnd="56dp"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <!-- Bottom-Left Custom Circular Back Button: cleanly exits back to topic page -->
+                <FrameLayout
+                    android:id="@+id/btnPlayerBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="bottom|start"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/bg_player_circle_back_btn"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:elevation="8dp">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Back"
+                        android:src="@drawable/ic_arrow_back_dark" />
+                </FrameLayout>
+            </FrameLayout>
+        </FrameLayout>
+
+        <!-- Clean, uncluttered white space below player -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="#FFFFFF" />
+    </LinearLayout>
+
+    <!-- Fullscreen Overlay Container (when in fullscreen mode) -->
+    <FrameLayout
+        android:id="@+id/fullscreenContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <!-- Persistent Circular Back Button in Fullscreen Mode: allows exiting fullscreen back to portrait -->
+    <FrameLayout
+        android:id="@+id/btnFullscreenBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_player_circle_back_btn"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="24dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:contentDescription="Exit Fullscreen"
+            android:src="@drawable/ic_arrow_back_dark" />
+    </FrameLayout>
+
+</FrameLayout>
