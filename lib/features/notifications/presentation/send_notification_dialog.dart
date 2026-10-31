@@ -42,6 +42,7 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
     final body = _bodyController.text.trim();
     final imgUrl = _imageUrlController.text.trim();
     final actionUrl = _actionUrlController.text.trim();
+    final nowIso = DateTime.now().toIso8601String();
     final payload = {
       'title': title,
       'body': body,
