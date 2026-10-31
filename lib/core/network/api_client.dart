@@ -204,8 +204,10 @@ class ApiClient {
     try {
       const url = "https://rkson-mock-api.pages.dev/api/v1/notify";
       final response = await _dio.post(url, data: payload);
-      if (response.statusCode == 200 && response.data?['status'] == 'success') {
-        return true;
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data is Map && data['status'] == 'success') return true;
+        if (data is String && data.contains('"status":"success"')) return true;
       }
     } catch (_) {}
 
@@ -213,9 +215,14 @@ class ApiClient {
     try {
       const fallbackUrl = "https://rkson-mock-api.pages.dev/api/notify";
       final response = await _dio.post(fallbackUrl, data: payload);
-      return response.statusCode == 200 && response.data?['status'] == 'success';
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data is Map && data['status'] == 'success') return true;
+        if (data is String && data.contains('"status":"success"')) return true;
+      }
     } catch (_) {
       return false;
     }
+    return false;
   }
 }

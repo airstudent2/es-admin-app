@@ -56,17 +56,16 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.2
-          name: "Es Bangla Admin v1.0.2 (FCM v1 Status Bar Push Integration)"
+          tag_name: v1.0.3
+          name: "Es Bangla Admin v1.0.3 (Universal Push Broadcast Engine)"
           draft: false
           prerelease: false
           body: |
-            ### Es Bangla Admin v1.0.2 Release Highlights:
-            - **Google FCM v1 Status Bar Push Broadcast**:
-              - Broadcasts directly trigger Android system status bars and notification drawers via Cloudflare FCM v1 dispatcher.
-              - Multi-tier synchronization across Google FCM v1, Firestore, and Realtime Database.
-            - **Target Audience Routing**:
-              - Broadcast to all students or target specific semesters (Semester 3 / Semester 4).
+            ### Es Bangla Admin v1.0.3 Release Highlights:
+            - **Universal Push Notification Broadcast**:
+              - Broadcasts directly trigger Android status bars across all installed devices (logged in or guest).
+              - Zero barriers: no semester or authentication lockouts.
+              - Instant delivery via Cloudflare FCM v1 Edge Dispatcher.
           files: build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

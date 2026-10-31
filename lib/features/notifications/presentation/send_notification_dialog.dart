@@ -42,17 +42,13 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
     final body = _bodyController.text.trim();
     final imgUrl = _imageUrlController.text.trim();
     final actionUrl = _actionUrlController.text.trim();
-    final nowIso = DateTime.now().toIso8601String();
-
-    final sem = _selectedAudience == 'sem3' ? 3 : (_selectedAudience == 'sem4' ? 4 : 0);
-
     final payload = {
       'title': title,
       'body': body,
       'message': body,
       'imageUrl': imgUrl.isNotEmpty ? imgUrl : null,
-      'audience': _selectedAudience,
-      'targetSemester': sem,
+      'audience': 'all',
+      'targetSemester': 0,
       'actionUrl': actionUrl.isNotEmpty ? actionUrl : null,
       'isActive': true,
       'createdAt': nowIso,
@@ -62,7 +58,7 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
     final pushFuture = ApiClient.sendPushNotification(
       title: title,
       body: body,
-      audience: _selectedAudience,
+      audience: 'all',
       imageUrl: imgUrl.isNotEmpty ? imgUrl : null,
       actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
     );
@@ -129,18 +125,43 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
                 const Divider(height: 20, color: AppColors.border),
                 const SizedBox(height: 8),
 
-                // Audience selector
-                DropdownButtonFormField<String>(
-                  value: _selectedAudience,
-                  decoration: const InputDecoration(labelText: 'টার্গেট প্রাপক (Audience) *', prefixIcon: Icon(Icons.groups, size: 20)),
-                  items: const [
-                    DropdownMenuItem(value: 'all', child: Text('সকল শিক্ষার্থী (All Semesters)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                    DropdownMenuItem(value: 'sem3', child: Text('শুধুমাত্র সেমিস্টার ৩ শিক্ষার্থী', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                    DropdownMenuItem(value: 'sem4', child: Text('শুধুমাত্র সেমিস্টার ৪ শিক্ষার্থী', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedAudience = val);
-                  },
+                // Universal Audience Card
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFBBF7D0)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.public_rounded, color: Color(0xFF16A34A), size: 22),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'প্রাপক: সর্বজনীন ব্রডকাস্ট (All Devices)',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF166534),
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'লগইন বা গেস্ট নির্বিশেষে সমস্ত ইনস্টলড ডিভাইসে সাথে সাথে যাবে।',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: Color(0xFF15803D),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 14),
 
