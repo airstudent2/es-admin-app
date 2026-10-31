@@ -103,26 +103,30 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  // App Icon with subtle gradient & shadow
+                  // Official Es Bangla App Icon
                   Container(
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF312E81), Color(0xFF4338CA)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.border,
+                        width: 1,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.25),
-                          blurRadius: 8,
+                          color: AppColors.primary.withOpacity(0.12),
+                          blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.school_rounded, color: Colors.white, size: 21),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      'assets/icons/app_logo.png',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   const SizedBox(width: 12),
 
@@ -143,7 +147,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
                           ),
                         ),
                         Text(
-                          'অফিশিয়াল কন্ট্রোল প্যানেল • v1.0.3',
+                          'অফিশিয়াল কন্ট্রোল প্যানেল • v1.0.4',
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,

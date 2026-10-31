@@ -51,21 +51,23 @@ jobs:
         with:
           name: es-admin-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 1
           if-no-files-found: error
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.3
-          name: "Es Bangla Admin v1.0.3 (Universal Push Broadcast Engine)"
+          tag_name: v1.0.4
+          name: "Es Bangla Admin v1.0.4 (Official Brand Logo Integration)"
           draft: false
           prerelease: false
           body: |
-            ### Es Bangla Admin v1.0.3 Release Highlights:
-            - **Universal Push Notification Broadcast**:
-              - Broadcasts directly trigger Android status bars across all installed devices (logged in or guest).
-              - Zero barriers: no semester or authentication lockouts.
-              - Instant delivery via Cloudflare FCM v1 Edge Dispatcher.
+            ### Es Bangla Admin v1.0.4 Release Highlights:
+            - **Official Es Bangla Brand Logo Integration**:
+              - All Android launcher icon densities (mdpi up to xxxhdpi) updated with high-resolution brand logo.
+              - In-app top AppBar header now features the crisp official Es Bangla emblem.
+            - **Storage Optimization**:
+              - Automated 1-day retention cycle for CI artifacts to protect GitHub Actions free quotas.
           files: build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
