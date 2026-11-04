@@ -57,17 +57,23 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.4
-          name: "Es Bangla Admin v1.0.4 (Official Brand Logo Integration)"
+          tag_name: v1.0.5
+          name: "Es Bangla Admin v1.0.5 (Mobile Friendly Overhaul & Overflow Fixes)"
           draft: false
           prerelease: false
           body: |
-            ### Es Bangla Admin v1.0.4 Release Highlights:
-            - **Official Es Bangla Brand Logo Integration**:
-              - All Android launcher icon densities (mdpi up to xxxhdpi) updated with high-resolution brand logo.
-              - In-app top AppBar header now features the crisp official Es Bangla emblem.
-            - **Storage Optimization**:
-              - Automated 1-day retention cycle for CI artifacts to protect GitHub Actions free quotas.
+            ### Es Bangla Admin v1.0.5 Release Highlights:
+            - **Complete Mobile Ergonomics Overhaul**:
+              - All feature forms (News, VIP Grant, Video Class, Notifications) converted into smooth, keyboard-aware Mobile Bottom Sheets.
+              - Fields automatically elevate above the soft keyboard with proper `viewInsets` handling.
+            - **Critical Overflow & Tap Target Fixes**:
+              - Global subject lock card overflow fixed; switch is now 100% visible and responsive.
+              - Free video class switch row overflow eliminated.
+              - VIP filter chips enabled with horizontal scrolling for small screens.
+              - Student action buttons wrapped responsively to prevent clipping.
+            - **Android Navigation Bar Safety**:
+              - Custom bottom navigation bar wrapped in `SafeArea` to avoid collision with Android gesture bars.
+              - Firestore subject lock synchronization aligned with student app.
           files: build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

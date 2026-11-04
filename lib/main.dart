@@ -149,7 +149,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
                           ),
                         ),
                         Text(
-                          'অফিশিয়াল কন্ট্রোল প্যানেল • v1.0.4',
+                          'অফিশিয়াল কন্ট্রোল প্যানেল • v1.0.5',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
