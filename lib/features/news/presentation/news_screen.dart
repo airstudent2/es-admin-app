@@ -85,12 +85,10 @@ class NewsScreenState extends State<NewsScreen> {
   }
 
   void _openAddEditModal([Map<String, dynamic>? item]) {
-    showDialog(
-      context: context,
-      builder: (_) => AddEditNewsDialog(
-        initialData: item,
-        onSaved: loadNews,
-      ),
+    AddEditNewsDialog.show(
+      context,
+      initialData: item,
+      onSaved: loadNews,
     );
   }
 
@@ -119,16 +117,23 @@ class NewsScreenState extends State<NewsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.view_carousel_rounded, size: 18, color: AppColors.primary),
-                      const SizedBox(width: 6),
-                      Text(
-                        'হোমস্ক্রিন ব্যানার তালিকা (${_newsList.length})',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AppColors.textPrimary),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.view_carousel_rounded, size: 18, color: AppColors.primary),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            'হোমস্ক্রিন ব্যানার (${_newsList.length})',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AppColors.textPrimary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
@@ -228,11 +233,14 @@ class NewsScreenState extends State<NewsScreen> {
                                           ),
                                         ),
                                       ),
-                                      // Top Badges
+                                      // Top Badges (Constrained so they never collide with the switch pill)
                                       Positioned(
                                         top: 10,
                                         left: 10,
-                                        child: Row(
+                                        right: 85,
+                                        child: Wrap(
+                                          spacing: 6,
+                                          runSpacing: 4,
                                           children: [
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
@@ -246,7 +254,6 @@ class NewsScreenState extends State<NewsScreen> {
                                                 style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.3),
                                               ),
                                             ),
-                                            const SizedBox(width: 6),
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                                               decoration: BoxDecoration(
@@ -353,15 +360,26 @@ class NewsScreenState extends State<NewsScreen> {
                                           ),
                                         ),
                                         Row(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
                                             TextButton.icon(
                                               onPressed: () => _openAddEditModal(item),
+                                              style: TextButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                minimumSize: const Size(40, 36),
+                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              ),
                                               icon: const Icon(Icons.edit_rounded, size: 14, color: AppColors.primary),
                                               label: const Text('এডিট', style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold)),
                                             ),
                                             const SizedBox(width: 4),
                                             TextButton.icon(
                                               onPressed: () => _deleteItem(item['id']),
+                                              style: TextButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                minimumSize: const Size(40, 36),
+                                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              ),
                                               icon: const Icon(Icons.delete_outline_rounded, size: 14, color: AppColors.danger),
                                               label: const Text('মুছুন', style: TextStyle(color: AppColors.danger, fontSize: 12, fontWeight: FontWeight.bold)),
                                             ),

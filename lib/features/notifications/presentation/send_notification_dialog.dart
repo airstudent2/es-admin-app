@@ -91,31 +91,68 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
     }
   }
 
+  static Future<void> show(
+    BuildContext context, {
+    required VoidCallback onSent,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => SendNotificationDialog(onSent: onSent),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.92,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4.5,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 12, 10),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.campaign, color: AppColors.primary, size: 24),
-                        SizedBox(width: 8),
-                        Text('নতুন পুশ নোটিফিকেশন', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                      ],
+                    const Expanded(
+                      child: Row(
+                        children: [
+                          Icon(Icons.campaign_rounded, color: AppColors.primary, size: 24),
+                          SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              'নতুন পুশ নোটিফিকেশন',
+                              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close, size: 20, color: AppColors.textSecondary),
@@ -123,152 +160,163 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
                     ),
                   ],
                 ),
-                const Divider(height: 20, color: AppColors.border),
-                const SizedBox(height: 8),
-
-                // Universal Audience Card
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0FDF4),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFBBF7D0)),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.public_rounded, color: Color(0xFF16A34A), size: 22),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'প্রাপক: সর্বজনীন ব্রডকাস্ট (All Devices)',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF166534),
-                              ),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'লগইন বা গেস্ট নির্বিশেষে সমস্ত ইনস্টলড ডিভাইসে সাথে সাথে যাবে।',
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                color: Color(0xFF15803D),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  controller: _titleController,
-                  onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(labelText: 'নোটিফিকেশন শিরোনাম *', hintText: 'যেমন: নতুন মক টেস্ট বা সাজেস্টিভ নোটস প্রকাশ!'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'শিরোনাম আবশ্যক' : null,
-                ),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  controller: _bodyController,
-                  onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(labelText: 'বার্তার বিবরণ *', hintText: 'শিক্ষার্থীদের জন্য বিস্তারিত নোটিশ...'),
-                  maxLines: 3,
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'বার্তার বিবরণ আবশ্যক' : null,
-                ),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  controller: _imageUrlController,
-                  onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(labelText: 'ব্যানার / ছবির লিংক (ঐচ্ছিক)', hintText: 'https://images.unsplash.com/...', prefixIcon: Icon(Icons.image, size: 20)),
-                ),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  controller: _actionUrlController,
-                  decoration: const InputDecoration(labelText: 'অ্যাকশন লিংক (ঐচ্ছিক)', hintText: 'https://... বা অ্যাপের ভেতরের স্ক্রিন লিংক', prefixIcon: Icon(Icons.link, size: 20)),
-                ),
-                const SizedBox(height: 18),
-
-                // Live Phone Notification Preview
-                const Text('লাইভ মোবাইল প্রিভিউ:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(6)),
-                            child: const Icon(Icons.notifications, color: Colors.white, size: 12),
+              ),
+              const Divider(height: 1, color: AppColors.border),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Universal Audience Card
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF0FDF4),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFBBF7D0)),
                           ),
-                          const SizedBox(width: 6),
-                          const Text('Es Bangla • এখনই', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        _titleController.text.trim().isNotEmpty ? _titleController.text.trim() : 'সেমিস্টার ৩ এর নতুন সাজেস্টিভ নোটস প্রকাশ!',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _bodyController.text.trim().isNotEmpty ? _bodyController.text.trim() : 'অধ্যায়ভিত্তিক সমস্ত সাজেস্টিভ নোটস ও প্র্যাকটিস সেট অ্যাপে যুক্ত হয়েছে...',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      ),
-                      if (_imageUrlController.text.trim().isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: CachedNetworkImage(
-                            imageUrl: _imageUrlController.text.trim(),
-                            height: 120,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.public_rounded, color: Color(0xFF16A34A), size: 22),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'প্রাপক: সর্বজনীন ব্রডকাস্ট (All Devices)',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF166534),
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'লগইন বা গেস্ট নির্বিশেষে সমস্ত ইনস্টলড ডিভাইসে সাথে সাথে যাবে।',
+                                      style: TextStyle(
+                                        fontSize: 11.5,
+                                        color: Color(0xFF15803D),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+
+                        TextFormField(
+                          controller: _titleController,
+                          onChanged: (_) => setState(() {}),
+                          decoration: const InputDecoration(labelText: 'নোটিফিকেশন শিরোনাম *', hintText: 'যেমন: নতুন মক টেস্ট বা সাজেস্টিভ নোটস প্রকাশ!'),
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'শিরোনাম আবশ্যক' : null,
+                        ),
+                        const SizedBox(height: 14),
+
+                        TextFormField(
+                          controller: _bodyController,
+                          onChanged: (_) => setState(() {}),
+                          decoration: const InputDecoration(labelText: 'বার্তার বিবরণ *', hintText: 'শিক্ষার্থীদের জন্য বিস্তারিত নোটিশ...'),
+                          maxLines: 3,
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'বার্তার বিবরণ আবশ্যক' : null,
+                        ),
+                        const SizedBox(height: 14),
+
+                        TextFormField(
+                          controller: _imageUrlController,
+                          onChanged: (_) => setState(() {}),
+                          decoration: const InputDecoration(labelText: 'ব্যানার / ছবির লিংক (ঐচ্ছিক)', hintText: 'https://images.unsplash.com/...', prefixIcon: Icon(Icons.image, size: 20)),
+                        ),
+                        const SizedBox(height: 14),
+
+                        TextFormField(
+                          controller: _actionUrlController,
+                          decoration: const InputDecoration(labelText: 'অ্যাকশন লিংক (ঐচ্ছিক)', hintText: 'https://... বা অ্যাপের ভেতরের স্ক্রিন লিংক', prefixIcon: Icon(Icons.link, size: 20)),
+                        ),
+                        const SizedBox(height: 18),
+
+                        // Live Phone Notification Preview
+                        const Text('লাইভ মোবাইল প্রিভিউ:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(6)),
+                                    child: const Icon(Icons.notifications, color: Colors.white, size: 12),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text('Es Bangla • এখনই', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                _titleController.text.trim().isNotEmpty ? _titleController.text.trim() : 'সেমিস্টার ৩ এর নতুন সাজেস্টিভ নোটস প্রকাশ!',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _bodyController.text.trim().isNotEmpty ? _bodyController.text.trim() : 'অধ্যায়ভিত্তিক সমস্ত সাজেস্টিভ নোটস ও প্র্যাকটিস সেট অ্যাপে যুক্ত হয়েছে...',
+                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              ),
+                              if (_imageUrlController.text.trim().isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CachedNetworkImage(
+                                    imageUrl: _imageUrlController.text.trim(),
+                                    height: 120,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Broadcast Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _isSending ? null : _send,
+                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                            child: _isSending
+                                ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.send_rounded, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('ব্রডকাস্ট করুন', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
                           ),
                         ),
                       ],
-                    ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                // Broadcast Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _isSending ? null : _send,
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                    child: _isSending
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.send_rounded, size: 18),
-                              SizedBox(width: 8),
-                              Text('ব্রডকাস্ট করুন', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

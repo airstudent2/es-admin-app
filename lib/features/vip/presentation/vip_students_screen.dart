@@ -120,12 +120,10 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
   }
 
   void _openGrantDialog([Map<String, dynamic>? student]) {
-    showDialog(
-      context: context,
-      builder: (_) => GrantVipDialog(
-        student: student,
-        onSaved: loadUsers,
-      ),
+    GrantVipDialog.show(
+      context,
+      student: student,
+      onSaved: loadUsers,
     );
   }
 
@@ -215,14 +213,17 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      _buildFilterChip('সমস্ত (${_allUsers.length})', 'all'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('👑 ভিআইপি (${vipUsers.length})', 'vip'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('ফ্রি (${freeUsers.length})', 'free'),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildFilterChip('সমস্ত (${_allUsers.length})', 'all'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('👑 ভিআইপি (${vipUsers.length})', 'vip'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('ফ্রি (${freeUsers.length})', 'free'),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -420,8 +421,10 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
 
                                     const SizedBox(height: 12),
                                     // Action Buttons
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
+                                    Wrap(
+                                      alignment: WrapAlignment.end,
+                                      spacing: 8,
+                                      runSpacing: 6,
                                       children: [
                                         if (isVip)
                                           OutlinedButton.icon(
@@ -436,7 +439,6 @@ class VipStudentsScreenState extends State<VipStudentsScreen> {
                                             icon: const Icon(Icons.block_rounded, size: 13),
                                             label: const Text('ভিআইপি বাতিল', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
                                           ),
-                                        const SizedBox(width: 8),
                                         ElevatedButton.icon(
                                           onPressed: () => _openGrantDialog(user),
                                           style: ElevatedButton.styleFrom(

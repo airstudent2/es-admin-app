@@ -138,6 +138,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
                       children: [
                         Text(
                           'Es Bangla Admin',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 16.5,
                             fontWeight: FontWeight.w800,
@@ -148,6 +150,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
                         ),
                         Text(
                           'অফিশিয়াল কন্ট্রোল প্যানেল • v1.0.4',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,
@@ -160,7 +164,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
 
                   // Cloud Synced Status Pill
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                     decoration: BoxDecoration(
                       color: AppColors.successLight,
                       borderRadius: BorderRadius.circular(20),
@@ -179,7 +183,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
                         ),
                         const SizedBox(width: 5),
                         const Text(
-                          'ক্লাউড সিঙ্কড',
+                          'সিঙ্কড',
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -230,9 +234,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
           NotificationsScreen(key: _notificationsKey),
         ],
       ),
-      // Custom Sleek Navigation Bar
+      // Custom Sleek Navigation Bar with SafeArea for Android Gesture Bar
       bottomNavigationBar: Container(
-        height: 64,
         decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(top: BorderSide(color: AppColors.border, width: 1)),
@@ -244,37 +247,43 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
             ),
           ],
         ),
-        child: Row(
-          children: [
-            _buildNavItem(
-              index: 0,
-              icon: Icons.newspaper_outlined,
-              activeIcon: Icons.newspaper_rounded,
-              label: 'নিউজ ব্যানার',
-              activeColor: AppColors.primary,
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 60,
+            child: Row(
+              children: [
+                _buildNavItem(
+                  index: 0,
+                  icon: Icons.newspaper_outlined,
+                  activeIcon: Icons.newspaper_rounded,
+                  label: 'নিউজ ব্যানার',
+                  activeColor: AppColors.primary,
+                ),
+                _buildNavItem(
+                  index: 1,
+                  icon: Icons.workspace_premium_outlined,
+                  activeIcon: Icons.workspace_premium_rounded,
+                  label: 'ভিআইপি ও ইউজার',
+                  activeColor: AppColors.warning,
+                ),
+                _buildNavItem(
+                  index: 2,
+                  icon: Icons.video_library_outlined,
+                  activeIcon: Icons.video_library_rounded,
+                  label: 'ভিডিও লাইব্রেরি',
+                  activeColor: AppColors.primary,
+                ),
+                _buildNavItem(
+                  index: 3,
+                  icon: Icons.campaign_outlined,
+                  activeIcon: Icons.campaign_rounded,
+                  label: 'নোটিফিকেশন',
+                  activeColor: AppColors.primary,
+                ),
+              ],
             ),
-            _buildNavItem(
-              index: 1,
-              icon: Icons.workspace_premium_outlined,
-              activeIcon: Icons.workspace_premium_rounded,
-              label: 'ভিআইপি ও ইউজার',
-              activeColor: AppColors.warning,
-            ),
-            _buildNavItem(
-              index: 2,
-              icon: Icons.video_library_outlined,
-              activeIcon: Icons.video_library_rounded,
-              label: 'ভিডিও লাইব্রেরি',
-              activeColor: AppColors.primary,
-            ),
-            _buildNavItem(
-              index: 3,
-              icon: Icons.campaign_outlined,
-              activeIcon: Icons.campaign_rounded,
-              label: 'নোটিফিকেশন',
-              activeColor: AppColors.primary,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -302,7 +311,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: EdgeInsets.symmetric(
-                  horizontal: isSelected ? 16 : 0,
+                  horizontal: isSelected ? 14 : 0,
                   vertical: 3,
                 ),
                 decoration: BoxDecoration(
@@ -311,15 +320,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> with SingleTickerProv
                 ),
                 child: Icon(
                   isSelected ? activeIcon : icon,
-                  size: 21,
+                  size: 20,
                   color: isSelected ? activeColor : AppColors.textMuted,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10.5,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                   color: isSelected ? activeColor : AppColors.textSecondary,
                   letterSpacing: -0.2,

@@ -164,34 +164,74 @@ class _GrantVipDialogState extends State<GrantVipDialog> {
     }
   }
 
+  static Future<void> show(
+    BuildContext context, {
+    Map<String, dynamic>? student,
+    required VoidCallback onSaved,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => GrantVipDialog(
+        student: student,
+        onSaved: onSaved,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final expiry = _calculateExpiry();
     final expiryStr = DateFormat('dd MMM yyyy').format(expiry);
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.92,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4.5,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 12, 10),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.workspace_premium, color: AppColors.warning, size: 24),
-                        SizedBox(width: 8),
-                        Text('ভিআইপি সাবস্ক্রিপশন প্রদান', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                      ],
+                    const Expanded(
+                      child: Row(
+                        children: [
+                          Icon(Icons.workspace_premium_rounded, color: AppColors.warning, size: 22),
+                          SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              'ভিআইপি সাবস্ক্রিপশন প্রদান',
+                              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close, size: 20, color: AppColors.textSecondary),
@@ -199,122 +239,138 @@ class _GrantVipDialogState extends State<GrantVipDialog> {
                     ),
                   ],
                 ),
-                const Divider(height: 20, color: AppColors.border),
-                const SizedBox(height: 8),
-
-                // Student Email field
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'শিক্ষার্থীর ইমেইল (Student Email) *',
-                    hintText: 'student@example.com',
-                    prefixIcon: Icon(Icons.email_outlined, size: 20),
-                  ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'শিক্ষার্থীর ইমেইল আবশ্যক' : null,
-                ),
-                const SizedBox(height: 14),
-
-                // Package dropdown
-                DropdownButtonFormField<String>(
-                  value: _selectedGrant,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: 'সাবস্ক্রিপশন প্যাকেজ / অ্যাক্সেস *',
-                    prefixIcon: Icon(Icons.stars_rounded, size: 20, color: AppColors.warning),
-                  ),
-                  items: _grantPackages.entries
-                      .map((e) => DropdownMenuItem(
-                            value: e.key,
-                            child: Text(e.value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                          ))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedGrant = val);
-                  },
-                ),
-                const SizedBox(height: 14),
-
-                // Duration section
-                const Text('মেয়াদকাল (সময়সীমা নির্ধারণ করুন):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _presetDays.map((d) {
-                    final isSel = _selectedDays == d && _daysController.text == d.toString();
-                    return ChoiceChip(
-                      label: Text('$d দিন', style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : AppColors.textPrimary)),
-                      selected: isSel,
-                      selectedColor: AppColors.primary,
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: isSel ? AppColors.primary : AppColors.border)),
-                      onSelected: (selected) {
-                        if (selected) {
-                          setState(() {
-                            _selectedDays = d;
-                            _daysController.text = d.toString();
-                          });
-                        }
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 10),
-
-                TextFormField(
-                  controller: _daysController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'কাস্টম দিন সংখ্যা (Days)',
-                    hintText: 'যেমন: 30',
-                    prefixIcon: Icon(Icons.calendar_month_outlined, size: 20),
-                  ),
-                  onChanged: (_) => setState(() {}),
-                  validator: (v) {
-                    final n = int.tryParse(v?.trim() ?? '');
-                    if (n == null || n <= 0) return 'সঠিক দিন সংখ্যা লিখুন';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 14),
-
-                // Expiry Preview Banner
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.warningLight,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.warning.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.event_available, color: AppColors.warning, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'মেয়াদ শেষ হবে: $expiryStr পর্যন্ত',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF92400E)),
+              ),
+              const Divider(height: 1, color: AppColors.border),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Student Email field
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
+                            labelText: 'শিক্ষার্থীর ইমেইল (Student Email) *',
+                            hintText: 'student@example.com',
+                            prefixIcon: Icon(Icons.email_outlined, size: 20),
+                          ),
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'শিক্ষার্থীর ইমেইল আবশ্যক' : null,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
+                        const SizedBox(height: 14),
 
-                // Grant Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _isSaving ? null : _submit,
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                    child: _isSaving
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('ভিআইপি অ্যাক্টিভেট করুন', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                        // Package dropdown
+                        DropdownButtonFormField<String>(
+                          value: _selectedGrant,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'সাবস্ক্রিপশন প্যাকেজ / অ্যাক্সেস *',
+                            prefixIcon: Icon(Icons.stars_rounded, size: 20, color: AppColors.warning),
+                          ),
+                          items: _grantPackages.entries
+                              .map((e) => DropdownMenuItem(
+                                    value: e.key,
+                                    child: Text(
+                                      e.value,
+                                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ))
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) setState(() => _selectedGrant = val);
+                          },
+                        ),
+                        const SizedBox(height: 14),
+
+                        // Duration section
+                        const Text('মেয়াদকাল (সময়সীমা নির্ধারণ করুন):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _presetDays.map((d) {
+                            final isSel = _selectedDays == d && _daysController.text == d.toString();
+                            return ChoiceChip(
+                              label: Text('$d দিন', style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : AppColors.textPrimary)),
+                              selected: isSel,
+                              selectedColor: AppColors.primary,
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: isSel ? AppColors.primary : AppColors.border)),
+                              onSelected: (selected) {
+                                if (selected) {
+                                  setState(() {
+                                    _selectedDays = d;
+                                    _daysController.text = d.toString();
+                                  });
+                                }
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 12),
+
+                        TextFormField(
+                          controller: _daysController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'কাস্টম দিন সংখ্যা (Days)',
+                            hintText: 'যেমন: 30',
+                            prefixIcon: Icon(Icons.calendar_month_outlined, size: 20),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                          validator: (v) {
+                            final n = int.tryParse(v?.trim() ?? '');
+                            if (n == null || n <= 0) return 'সঠিক দিন সংখ্যা লিখুন';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 14),
+
+                        // Expiry Preview Banner
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.warningLight,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.warning.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.event_available, color: AppColors.warning, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'মেয়াদ শেষ হবে: $expiryStr পর্যন্ত',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF92400E)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Grant Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _isSaving ? null : _submit,
+                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                            child: _isSaving
+                                ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                : const Text('ভিআইপি অ্যাক্টিভেট করুন', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

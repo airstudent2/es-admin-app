@@ -119,30 +119,69 @@ class _AddEditVideoDialogState extends State<AddEditVideoDialog> {
     }
   }
 
+  static Future<void> show(
+    BuildContext context, {
+    Map<String, dynamic>? initialData,
+    int defaultSemester = 3,
+    String defaultSubjectId = 'bengali',
+    required VoidCallback onSaved,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => AddEditVideoDialog(
+        initialData: initialData,
+        defaultSemester: defaultSemester,
+        defaultSubjectId: defaultSubjectId,
+        onSaved: onSaved,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.initialData != null;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.92,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4.5,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 12, 10),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      isEdit ? 'ক্লাস ভিডিও সম্পাদনা' : 'নতুন ভিডিও ক্লাস যুক্ত করুন',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    Expanded(
+                      child: Text(
+                        isEdit ? 'ক্লাস ভিডিও সম্পাদনা' : 'নতুন ভিডিও ক্লাস যুক্ত করুন',
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close, size: 20, color: AppColors.textSecondary),
@@ -150,118 +189,124 @@ class _AddEditVideoDialogState extends State<AddEditVideoDialog> {
                     ),
                   ],
                 ),
-                const Divider(height: 20, color: AppColors.border),
-                const SizedBox(height: 8),
+              ),
+              const Divider(height: 1, color: AppColors.border),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Semester Dropdown
+                        DropdownButtonFormField<int>(
+                          value: _selectedSemester,
+                          isExpanded: true,
+                          decoration: const InputDecoration(labelText: 'সেমিস্টার *'),
+                          items: const [
+                            DropdownMenuItem(value: 3, child: Text('সেমিস্টার ৩ (Semester 3)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
+                            DropdownMenuItem(value: 4, child: Text('সেমিস্টার ৪ (Semester 4)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) setState(() => _selectedSemester = val);
+                          },
+                        ),
+                        const SizedBox(height: 14),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        value: _selectedSemester,
-                        decoration: const InputDecoration(labelText: 'সেমিস্টার *'),
-                        items: const [
-                          DropdownMenuItem(value: 3, child: Text('সেমিস্টার ৩', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
-                          DropdownMenuItem(value: 4, child: Text('সেমিস্টার ৪', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) setState(() => _selectedSemester = val);
-                        },
-                      ),
+                        // Subject Dropdown
+                        DropdownButtonFormField<String>(
+                          value: _selectedSubjectId,
+                          isExpanded: true,
+                          decoration: const InputDecoration(labelText: 'বিষয় *'),
+                          items: const [
+                            DropdownMenuItem(value: 'bengali', child: Text('বাংলা (Bengali)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
+                            DropdownMenuItem(value: 'english', child: Text('English', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) setState(() => _selectedSubjectId = val);
+                          },
+                        ),
+                        const SizedBox(height: 14),
+
+                        TextFormField(
+                          controller: _titleController,
+                          decoration: const InputDecoration(labelText: 'ক্লাসের শিরোনাম *', hintText: 'যেমন: কে বাঁচায়, কে বাঁচে - লাইন বাই লাইন বিশ্লেষণ'),
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'শিরোনাম আবশ্যক' : null,
+                        ),
+                        const SizedBox(height: 14),
+
+                        TextFormField(
+                          controller: _topicController,
+                          decoration: const InputDecoration(labelText: 'অধ্যায় / টপিকের নাম', hintText: 'যেমন: কে বাঁচায় কে বাঁচে'),
+                        ),
+                        const SizedBox(height: 14),
+
+                        TextFormField(
+                          controller: _youtubeUrlController,
+                          decoration: const InputDecoration(
+                            labelText: 'ইউটিউব ভিডিও লিংক বা আইডি *',
+                            hintText: 'https://youtube.com/watch?v=... বা 11 অক্ষরের আইডি',
+                            prefixIcon: Icon(Icons.play_circle_fill, color: Colors.red),
+                          ),
+                          validator: (v) => (v == null || v.trim().isEmpty) ? 'ইউটিউব লিংক আবশ্যক' : null,
+                        ),
+                        const SizedBox(height: 14),
+
+                        TextFormField(
+                          controller: _orderController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(labelText: 'ক্রমিক নং (Order)', prefixIcon: Icon(Icons.format_list_numbered, size: 18)),
+                        ),
+                        const SizedBox(height: 14),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.background,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('ফ্রি ভিডিও ক্লাস (Free for All)?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                    SizedBox(height: 2),
+                                    Text('অন থাকলে সবাই দেখতে পারবে, অফ থাকলে ভিআইপি লাগবে', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Switch(
+                                value: _isFree,
+                                activeColor: AppColors.success,
+                                onChanged: (val) => setState(() => _isFree = val),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _isSaving ? null : _save,
+                            child: _isSaving
+                                ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                : Text(isEdit ? 'পরিবর্তন সংরক্ষণ করুন' : 'ক্লাস যুক্ত করুন', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        value: _selectedSubjectId,
-                        decoration: const InputDecoration(labelText: 'বিষয় *'),
-                        items: const [
-                          DropdownMenuItem(value: 'bengali', child: Text('বাংলা', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
-                          DropdownMenuItem(value: 'english', child: Text('English', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) setState(() => _selectedSubjectId = val);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(labelText: 'ক্লাসের শিরোনাম *', hintText: 'যেমন: কে বাঁচায়, কে বাঁচে - লাইন বাই লাইন বিশ্লেষণ'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'শিরোনাম আবশ্যক' : null,
-                ),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  controller: _topicController,
-                  decoration: const InputDecoration(labelText: 'অধ্যায় / টপিকের নাম', hintText: 'যেমন: কে বাঁচায় কে বাঁচে'),
-                ),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  controller: _youtubeUrlController,
-                  decoration: const InputDecoration(
-                    labelText: 'ইউটিউব ভিডিও লিংক বা আইডি *',
-                    hintText: 'https://youtube.com/watch?v=... বা 11 অক্ষরের আইডি',
-                    prefixIcon: Icon(Icons.play_circle_fill, color: Colors.red),
-                  ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'ইউটিউব লিংক আবশ্যক' : null,
-                ),
-                const SizedBox(height: 14),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _orderController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'ক্রমিক নং', prefixIcon: Icon(Icons.format_list_numbered, size: 18)),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('ফ্রি ভিডিও ক্লাস (Free for All)?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                          Text('অন থাকলে সবাই দেখতে পারবে, অফ থাকলে ভিআইপি লাগবে', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                        ],
-                      ),
-                      Switch(
-                        value: _isFree,
-                        activeColor: AppColors.success,
-                        onChanged: (val) => setState(() => _isFree = val),
-                      ),
-                    ],
                   ),
                 ),
-                const SizedBox(height: 20),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _isSaving ? null : _save,
-                    child: _isSaving
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(isEdit ? 'পরিবর্তন সংরক্ষণ করুন' : 'ক্লাস যুক্ত করুন'),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

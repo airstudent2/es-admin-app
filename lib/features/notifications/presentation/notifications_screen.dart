@@ -80,9 +80,9 @@ class NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   void _openSendDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => SendNotificationDialog(onSent: loadNotifications),
+    SendNotificationDialog.show(
+      context,
+      onSent: loadNotifications,
     );
   }
 
@@ -107,17 +107,16 @@ class NotificationsScreenState extends State<NotificationsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               color: Colors.white,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.notifications_active_rounded, size: 18, color: AppColors.primary),
-                      const SizedBox(width: 6),
-                      Text(
-                        'পুশ নোটিফিকেশন ব্রডকাস্ট হিস্ট্রি (${_notifications.length})',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AppColors.textPrimary),
-                      ),
-                    ],
+                  const Icon(Icons.notifications_active_rounded, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'পুশ নোটিফিকেশন ব্রডকাস্ট হিস্ট্রি (${_notifications.length})',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AppColors.textPrimary),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -199,18 +198,29 @@ class NotificationsScreenState extends State<NotificationsScreen> {
                                             ],
                                           ),
                                         ),
-                                        Row(
-                                          children: [
-                                            Text(dateStr, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                                            const SizedBox(width: 4),
-                                            IconButton(
-                                              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.textMuted),
-                                              padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints(),
-                                              tooltip: 'মুছুন',
-                                              onPressed: () => _deleteNotification(item['id']),
-                                            ),
-                                          ],
+                                        const SizedBox(width: 8),
+                                        Flexible(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  dateStr,
+                                                  style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.textMuted),
+                                                padding: EdgeInsets.zero,
+                                                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                                                tooltip: 'মুছুন',
+                                                onPressed: () => _deleteNotification(item['id']),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),

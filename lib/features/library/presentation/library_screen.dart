@@ -30,14 +30,19 @@ class LibraryScreenState extends State<LibraryScreen> {
     setState(() => _isLoading = true);
     final results = await Future.wait([
       ApiClient.getCollection(AppConfig.colVideos),
+      ApiClient.getDocument(AppConfig.colSettings, 'subject_locks'),
       ApiClient.getDocument(AppConfig.colSettings, 'library_locks'),
     ]);
 
     if (mounted) {
+      final subLocks = (results[1] as Map<String, dynamic>?) ?? {};
+      final libLocks = (results[2] as Map<String, dynamic>?) ?? {};
+      final mergedLocks = <String, dynamic>{}..addAll(libLocks)..addAll(subLocks);
+
       setState(() {
         _videosList = (results[0] as List<Map<String, dynamic>>)
           ..sort((a, b) => ((a['order'] ?? 1) as int).compareTo((b['order'] ?? 1) as int));
-        _locks = (results[1] as Map<String, dynamic>?) ?? {};
+        _locks = mergedLocks;
         _isLoading = false;
       });
     }
@@ -54,14 +59,17 @@ class LibraryScreenState extends State<LibraryScreen> {
     final updated = Map<String, dynamic>.from(_locks);
     updated[key] = !currentLocked;
 
-    final success = await ApiClient.setDocument(AppConfig.colSettings, 'library_locks', updated);
+    final s1 = await ApiClient.setDocument(AppConfig.colSettings, 'subject_locks', updated);
+    final s2 = await ApiClient.setDocument(AppConfig.colSettings, 'library_locks', updated);
+    final success = s1 || s2;
+
     if (success) {
       setState(() => _locks = updated);
       if (mounted) {
         final subName = subId == 'bengali' ? 'বাংলা' : 'English';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(!currentLocked ? '$subName বিষয় সফলভাবে লকড (PRO) করা হয়েছে' : '$subName বিষয় সবার জন্য উন্মুক্ত করা হয়েছে'),
+            content: Text(!currentLocked ? '$subName বিষয় সফলভাবে লকড (VIP) করা হয়েছে' : '$subName বিষয় সবার জন্য উন্মুক্ত করা হয়েছে'),
             backgroundColor: !currentLocked ? const Color(0xFFD97706) : AppColors.success,
           ),
         );
@@ -122,14 +130,12 @@ class LibraryScreenState extends State<LibraryScreen> {
   }
 
   void _openAddEditModal([Map<String, dynamic>? item]) {
-    showDialog(
-      context: context,
-      builder: (_) => AddEditVideoDialog(
-        initialData: item,
-        defaultSemester: _activeSemester,
-        defaultSubjectId: _activeSubjectId,
-        onSaved: loadData,
-      ),
+    AddEditVideoDialog.show(
+      context,
+      initialData: item,
+      defaultSemester: _activeSemester,
+      defaultSubjectId: _activeSubjectId,
+      onSaved: loadData,
     );
   }
 
@@ -202,51 +208,53 @@ class LibraryScreenState extends State<LibraryScreen> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Global Lock Status Card
+                  // Global Lock Status Card (Mobile Overflow Safe)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: isCurSubLocked ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDF4),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: isCurSubLocked ? const Color(0xFFFECACA) : const Color(0xFFBBF7D0)),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: isCurSubLocked ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                isCurSubLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
-                                color: isCurSubLocked ? AppColors.danger : AppColors.success,
-                                size: 18,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${_activeSubjectId == 'bengali' ? 'বাংলা' : 'English'} বিষয় গ্লোবাল স্ট্যাটাস:',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary),
-                                ),
-                                Text(
-                                  isCurSubLocked ? 'লকড (শুধুমাত্র VIP শিক্ষার্থীরা ক্লাস দেখতে পারবে)' : 'উন্মুক্ত (সকল শিক্ষার্থীর জন্য ফ্রি ক্লাস)',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: isCurSubLocked ? AppColors.danger : const Color(0xFF15803D),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: isCurSubLocked ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isCurSubLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                            color: isCurSubLocked ? AppColors.danger : AppColors.success,
+                            size: 18,
+                          ),
                         ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${_activeSubjectId == 'bengali' ? 'বাংলা' : 'English'} বিষয় গ্লোবাল স্ট্যাটাস:',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                isCurSubLocked ? 'লকড (VIP শিক্ষার্থীরা ক্লাস দেখতে পারবে)' : 'উন্মুক্ত (সকলের জন্য ফ্রি ক্লাস)',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: isCurSubLocked ? AppColors.danger : const Color(0xFF15803D),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Switch(
                           value: isCurSubLocked,
                           activeColor: AppColors.danger,
