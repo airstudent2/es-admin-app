@@ -14,6 +14,22 @@ class GrantVipDialog extends StatefulWidget {
     required this.onSaved,
   });
 
+  static Future<void> show(
+    BuildContext context, {
+    Map<String, dynamic>? student,
+    required VoidCallback onSaved,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => GrantVipDialog(
+        student: student,
+        onSaved: onSaved,
+      ),
+    );
+  }
+
   @override
   State<GrantVipDialog> createState() => _GrantVipDialogState();
 }
@@ -162,22 +178,6 @@ class _GrantVipDialogState extends State<GrantVipDialog> {
         );
       }
     }
-  }
-
-  static Future<void> show(
-    BuildContext context, {
-    Map<String, dynamic>? student,
-    required VoidCallback onSaved,
-  }) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => GrantVipDialog(
-        student: student,
-        onSaved: onSaved,
-      ),
-    );
   }
 
   @override

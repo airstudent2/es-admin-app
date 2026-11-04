@@ -17,6 +17,26 @@ class AddEditVideoDialog extends StatefulWidget {
     required this.onSaved,
   });
 
+  static Future<void> show(
+    BuildContext context, {
+    Map<String, dynamic>? initialData,
+    int defaultSemester = 3,
+    String defaultSubjectId = 'bengali',
+    required VoidCallback onSaved,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => AddEditVideoDialog(
+        initialData: initialData,
+        defaultSemester: defaultSemester,
+        defaultSubjectId: defaultSubjectId,
+        onSaved: onSaved,
+      ),
+    );
+  }
+
   @override
   State<AddEditVideoDialog> createState() => _AddEditVideoDialogState();
 }
@@ -117,26 +137,6 @@ class _AddEditVideoDialogState extends State<AddEditVideoDialog> {
         );
       }
     }
-  }
-
-  static Future<void> show(
-    BuildContext context, {
-    Map<String, dynamic>? initialData,
-    int defaultSemester = 3,
-    String defaultSubjectId = 'bengali',
-    required VoidCallback onSaved,
-  }) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => AddEditVideoDialog(
-        initialData: initialData,
-        defaultSemester: defaultSemester,
-        defaultSubjectId: defaultSubjectId,
-        onSaved: onSaved,
-      ),
-    );
   }
 
   @override

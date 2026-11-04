@@ -13,6 +13,22 @@ class AddEditNewsDialog extends StatefulWidget {
     required this.onSaved,
   });
 
+  static Future<void> show(
+    BuildContext context, {
+    Map<String, dynamic>? initialData,
+    required VoidCallback onSaved,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => AddEditNewsDialog(
+        initialData: initialData,
+        onSaved: onSaved,
+      ),
+    );
+  }
+
   @override
   State<AddEditNewsDialog> createState() => _AddEditNewsDialogState();
 }
@@ -105,22 +121,6 @@ class _AddEditNewsDialogState extends State<AddEditNewsDialog> {
         );
       }
     }
-  }
-
-  static Future<void> show(
-    BuildContext context, {
-    Map<String, dynamic>? initialData,
-    required VoidCallback onSaved,
-  }) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => AddEditNewsDialog(
-        initialData: initialData,
-        onSaved: onSaved,
-      ),
-    );
   }
 
   @override

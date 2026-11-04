@@ -9,6 +9,18 @@ class SendNotificationDialog extends StatefulWidget {
 
   const SendNotificationDialog({super.key, required this.onSent});
 
+  static Future<void> show(
+    BuildContext context, {
+    required VoidCallback onSent,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => SendNotificationDialog(onSent: onSent),
+    );
+  }
+
   @override
   State<SendNotificationDialog> createState() => _SendNotificationDialogState();
 }
@@ -89,18 +101,6 @@ class _SendNotificationDialogState extends State<SendNotificationDialog> {
         );
       }
     }
-  }
-
-  static Future<void> show(
-    BuildContext context, {
-    required VoidCallback onSent,
-  }) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => SendNotificationDialog(onSent: onSent),
-    );
   }
 
   @override
