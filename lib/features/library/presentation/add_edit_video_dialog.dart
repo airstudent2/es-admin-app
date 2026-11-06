@@ -103,12 +103,14 @@ class _AddEditVideoDialogState extends State<AddEditVideoDialog> {
       'topicName': _topicController.text.trim(),
       'topic': _topicController.text.trim(),
       'subjectId': _selectedSubjectId,
+      'subjectName': _selectedSubjectId == 'bengali' ? 'বাংলা' : 'English',
       'semester': _selectedSemester,
       'youtubeUrl': rawUrl,
       'youtubeVideoId': videoId,
       'thumbnailUrl': 'https://img.youtube.com/vi/$videoId/hqdefault.jpg',
       'order': int.tryParse(_orderController.text.trim()) ?? 1,
       'isFree': _isFree,
+      'isActive': true,
       'updatedAt': DateTime.now().toIso8601String(),
     };
 

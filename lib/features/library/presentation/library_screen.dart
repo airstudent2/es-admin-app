@@ -280,7 +280,7 @@ class LibraryScreenState extends State<LibraryScreen> {
                                   children: [
                                     const Icon(Icons.video_library_outlined, size: 52, color: AppColors.textMuted),
                                     const SizedBox(height: 12),
-                                    Text('সেমিস্টার ৩ ${_activeSubjectId == 'bengali' ? "বাংলা" : "English"} বিষয়ে কোনো ক্লাস নেই', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                                    Text('সেমিস্টার $_activeSemester ${_activeSubjectId == 'bengali' ? "বাংলা" : "English"} বিষয়ে কোনো ক্লাস নেই', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
                                     const SizedBox(height: 14),
                                     ElevatedButton.icon(
                                       onPressed: () => _openAddEditModal(),
