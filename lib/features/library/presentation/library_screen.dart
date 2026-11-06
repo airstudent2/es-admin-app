@@ -49,13 +49,11 @@ class LibraryScreenState extends State<LibraryScreen> {
   }
 
   bool _isSubjectLocked(String subId) {
-    if (subId == 'bengali') return _locks['sem3_bengali_locked'] == true;
-    if (subId == 'english') return _locks['sem3_english_locked'] == true;
-    return false;
+    return _locks['sem${_activeSemester}_${subId}_locked'] == true;
   }
 
   Future<void> _toggleSubjectLock(String subId, bool currentLocked) async {
-    final key = subId == 'bengali' ? 'sem3_bengali_locked' : 'sem3_english_locked';
+    final key = 'sem${_activeSemester}_${subId}_locked';
     final updated = Map<String, dynamic>.from(_locks);
     updated[key] = !currentLocked;
 
@@ -273,26 +271,10 @@ class LibraryScreenState extends State<LibraryScreen> {
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                  : _activeSemester == 4
+                  : filteredVideos.isEmpty
                       ? Center(
                           child: Padding(
                             padding: const EdgeInsets.all(32),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.hourglass_top_rounded, size: 52, color: Color(0xFFD97706)),
-                                const SizedBox(height: 12),
-                                const Text('সেমিস্টার ৪ প্রস্তুতিমূলক', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                                const SizedBox(height: 4),
-                                const Text('ইউজার অ্যাপে সেমিস্টার ৪ এখনও কামিং সুন রয়েছে। সেমিস্টার ৩ এর ভিডিও ক্লাস সক্রিয় রয়েছে।', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                              ],
-                            ),
-                          ),
-                        )
-                      : filteredVideos.isEmpty
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(32),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
